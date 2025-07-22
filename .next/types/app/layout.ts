@@ -1,4 +1,4 @@
-// File: C:\Users\PC - MSI\Desktop\DOSSIER\W\Onexus\project\dashboard_chatbot\app\layout.tsx
+// File: C:\Users\PC - MSI\Desktop\DOSSIER\W\Onexus\project\rag_project\dashboard_chatbot\app\layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -51,21 +51,32 @@ export default function FileManager({ companyId }: FileManagerProps) {
 
     for (const file of acceptedFiles) {
       try {
-        // Upload vers le backend RAG
+        // Récupérer le token JWT Supabase
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.access_token) {
+          toast.error('Vous devez être connecté pour uploader des fichiers')
+          continue
+        }
+
+        // Upload vers le backend RAG avec authentification
         const formData = new FormData()
         formData.append('file', file)
-        formData.append('company_id', companyId)
 
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_RAG_BACKEND_URL || 'http://localhost:8000'}/upload/`,
-          formData
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          }
         )
 
-        if (response.data.success) {
+        if (response.data.message) {
           // Enregistrer dans la base de données
           const { error } = await supabase.from('documents').insert({
             name: file.name,
-            file_path: response.data.file_path,
+            file_path: response.data.file_path || file.name,
             file_size: file.size,
             mime_type: file.type,
             company_id: companyId,
@@ -79,8 +90,15 @@ export default function FileManager({ companyId }: FileManagerProps) {
             toast.success(`${file.name} uploadé avec succès`)
           }
         }
-      } catch (error) {
-        toast.error(`Erreur lors de l'upload de ${file.name}`)
+      } catch (error: any) {
+        if (error.response?.status === 403) {
+          toast.error(`Accès refusé pour ${file.name}. Vérifiez vos permissions.`)
+        } else if (error.response?.status === 401) {
+          toast.error(`Authentification requise pour ${file.name}`)
+        } else {
+          toast.error(`Erreur lors de l'upload de ${file.name}`)
+        }
+        console.error('Upload error:', error)
       }
     }
 
@@ -91,12 +109,26 @@ export default function FileManager({ companyId }: FileManagerProps) {
   const buildIndex = async () => {
     setProcessing(true)
     try {
+      // Récupérer le token JWT Supabase
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('Vous devez être connecté pour construire l\'index')
+        setProcessing(false)
+        return
+      }
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_RAG_BACKEND_URL || 'http://localhost:8000'}/build_index`,
-        { company_id: companyId }
+        {}, // Le backend récupère automatiquement le company_id depuis le token
+        {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       )
 
-      if (response.data.success) {
+      if (response.data.message) {
         // Marquer tous les documents comme traités
         const { error } = await supabase
           .from('documents')
@@ -110,8 +142,15 @@ export default function FileManager({ companyId }: FileManagerProps) {
           loadDocuments()
         }
       }
-    } catch (error) {
-      toast.error('Erreur lors de la construction de l\'index')
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        toast.error('Accès refusé. Vérifiez vos permissions.')
+      } else if (error.response?.status === 401) {
+        toast.error('Authentification requise')
+      } else {
+        toast.error('Erreur lors de la construction de l\'index')
+      }
+      console.error('Build index error:', error)
     }
     setProcessing(false)
   }
@@ -141,7 +180,7 @@ export default function FileManager({ companyId }: FileManagerProps) {
       'application/pdf': ['.pdf'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     },
-    maxFileSize: 10 * 1024 * 1024 // 10MB
+    maxSize: 10 * 1024 * 1024 // 10MB
   })
 
   const formatFileSize = (bytes: number) => {

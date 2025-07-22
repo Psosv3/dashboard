@@ -11,7 +11,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+    <div className="min-h-screen home-page">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center text-white">
           <h1 className="text-5xl font-bold mb-6">

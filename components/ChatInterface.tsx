@@ -138,12 +138,26 @@ export default function ChatInterface({ companyId }: ChatInterfaceProps) {
     setMessages(prev => [...prev, newUserMessage])
 
     try {
-      // Envoyer la question au backend RAG
+      // Récupérer le token JWT Supabase
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('Vous devez être connecté pour utiliser le chatbot')
+        setLoading(false)
+        return
+      }
+
+      // Envoyer la question au backend RAG avec authentification
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_RAG_BACKEND_URL || 'http://localhost:8000'}/ask/`,
         {
-          question: userMessage,
-          company_id: companyId
+          question: userMessage
+          // Le backend récupère automatiquement le company_id depuis le token JWT
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
         }
       )
 
@@ -171,17 +185,31 @@ export default function ChatInterface({ companyId }: ChatInterfaceProps) {
       }
       setMessages(prev => [...prev, newAssistantMessage])
 
-    } catch (error) {
-      toast.error('Erreur lors de la communication avec le chatbot')
+    } catch (error: any) {
+      console.error('Chat error:', error)
+      
+      let errorMessage = 'Désolé, une erreur est survenue.'
+      
+      if (error.response?.status === 403) {
+        errorMessage = 'Accès refusé. Vérifiez vos permissions.'
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Authentification requise. Veuillez vous reconnecter.'
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Service non disponible. Vérifiez que votre backend RAG est en cours d\'exécution.'
+      } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+        errorMessage = 'Impossible de joindre le backend RAG. Vérifiez qu\'il est démarré sur le port 8000.'
+      }
+      
+      toast.error(errorMessage)
       
       // Message d'erreur pour l'utilisateur
-      const errorMessage: Message = {
+      const errorMessageObj: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'Désolé, une erreur est survenue. Veuillez vérifier que votre backend RAG est en cours d\'exécution.',
+        content: errorMessage,
         role: 'assistant',
         created_at: new Date().toISOString()
       }
-      setMessages(prev => [...prev, errorMessage])
+      setMessages(prev => [...prev, errorMessageObj])
     }
 
     setLoading(false)
