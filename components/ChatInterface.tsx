@@ -148,7 +148,7 @@ export default function ChatInterface({ companyId }: ChatInterfaceProps) {
 
       // Envoyer la question au backend RAG avec authentification
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_RAG_BACKEND_URL || 'http://localhost:8000'}/ask/`,
+        '/api/rag/ask',
         {
           question: userMessage
           // Le backend récupère automatiquement le company_id depuis le token JWT

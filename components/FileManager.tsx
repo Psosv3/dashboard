@@ -63,7 +63,7 @@ export default function FileManager({ companyId }: FileManagerProps) {
         formData.append('file', file)
 
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_RAG_BACKEND_URL || 'http://localhost:8000'}/upload/`,
+          '/api/rag/upload',
           formData,
           {
             headers: {
@@ -118,7 +118,7 @@ export default function FileManager({ companyId }: FileManagerProps) {
       }
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_RAG_BACKEND_URL || 'http://localhost:8000'}/build_index`,
+        '/api/rag/build_index',
         {}, // Le backend récupère automatiquement le company_id depuis le token
         {
           headers: {
