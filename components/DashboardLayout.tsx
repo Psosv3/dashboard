@@ -37,7 +37,7 @@ export default function DashboardLayout({ children, user, profile }: DashboardLa
 
   const navigation = [
     { name: 'Tableau de bord', href: '/dashboard', icon: '📊' },
-    { name: 'Documents', href: '/dashboard/documents', icon: '📄' },
+    { name: 'Documentation', href: '/dashboard/documents', icon: '📄' },
     { name: 'Chatbot', href: '/dashboard/chat', icon: '🤖' },
     { name: 'Paramètres', href: '/dashboard/settings', icon: '⚙️' },
   ]
