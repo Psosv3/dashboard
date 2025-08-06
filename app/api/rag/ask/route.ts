@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
 
     // Faire la requête vers l'API RAG (HTTP)
     const ragResponse = await fetch('http://api-rag.onexus.tech:8000/ask/', {
+    // const ragResponse = await fetch('http://localhost:8000/ask/', {
       method: 'POST',
       headers: {
         'Authorization': authHeader,
