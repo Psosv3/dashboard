@@ -29,7 +29,7 @@ export default async function DocumentationPage() {
   }
 
   const companyId = profile.companies?.id
-  const scriptCode = `<script src="https://chatbot.onexus.tech/${companyId}"></script>`
+  const scriptCode = `<script src="https://chatbot.onexus.tech/api/widget-script/company_id=${companyId}"></script>`
 
   return (
     <DashboardLayout user={user} profile={profile}>
@@ -87,7 +87,7 @@ export default async function DocumentationPage() {
             {/* Étape 3 */}
             <div className="border-l-4 border-purple-500 pl-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Étape 3 : Personnalisation (optionnel)
+                Étape 3 : Personnalisation (en cours de développement)
               </h3>
               <p className="text-gray-600 mb-4">
                 Vous pouvez personnaliser l'apparence du chatbot en ajoutant des attributs :
@@ -150,7 +150,7 @@ export default async function DocumentationPage() {
         </div>
 
         {/* Section support */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             🆘 Besoin d'aide ?
           </h3>
@@ -177,7 +177,7 @@ export default async function DocumentationPage() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </DashboardLayout>
   )
