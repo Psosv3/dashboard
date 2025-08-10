@@ -29,7 +29,7 @@ export default async function DocumentationPage() {
   }
 
   const companyId = profile.companies?.id
-  const scriptCode = `<script src="https://chatbot.onexus.tech/api/widget-script/company_id=${companyId}"></script>`
+  const scriptCode = `<script src="https://chatbot.onexus.tech/api/widget-script?company_id=${companyId}"></script>`
 
   return (
     <DashboardLayout user={user} profile={profile}>
