@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Faire la requête vers l'API RAG (HTTP)
-    const ragResponse = await fetch('http://api-rag.onexus.tech:8000/upload/', {
+    const ragResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/`, {
       method: 'POST',
       headers: {
         'Authorization': authHeader

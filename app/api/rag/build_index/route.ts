@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
 
     // Faire la requête vers l'API RAG (HTTP)
-    const ragResponse = await fetch('http://api-rag.onexus.tech:8000/build_index', {
+    const ragResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/build_index`, {
       method: 'POST',
       headers: {
         'Authorization': authHeader,

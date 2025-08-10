@@ -157,19 +157,65 @@ export default function FileManager({ companyId }: FileManagerProps) {
 
   const deleteDocument = async (docId: string, filePath: string) => {
     try {
-      // Supprimer de la base de données
+      // D'abord, récupérer le nom du fichier depuis le chemin
+      const document = documents.find(doc => doc.id === docId)
+      if (!document) {
+        toast.error('Document non trouvé')
+        return
+      }
+
+      const filename = document.name
+
+      // 1. Supprimer le fichier physique du serveur RAG
+      const { data: session } = await supabase.auth.getSession()
+      if (!session.session) {
+        toast.error('Session expirée')
+        return
+      }
+
+      try {
+        const ragResponse = await axios.delete(
+          `/api/rag/delete?filename=${encodeURIComponent(filename)}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${session.session.access_token}`
+            }
+          }
+        )
+
+        if (ragResponse.status !== 200) {
+          throw new Error('Erreur lors de la suppression du fichier physique')
+        }
+
+        toast.success('Fichier physique supprimé du serveur')
+      } catch (ragError: any) {
+        console.error('Erreur RAG:', ragError)
+        if (ragError.response?.status === 404) {
+          // Le fichier n'existe pas côté RAG, on continue quand même
+          toast('Fichier déjà absent du serveur RAG', { 
+            icon: '⚠️',
+            style: { background: '#FFA500', color: 'white' }
+          })
+        } else {
+          toast.error('Erreur lors de la suppression du fichier physique')
+          // On continue quand même pour supprimer de la DB
+        }
+      }
+
+      // 2. Supprimer de la base de données
       const { error } = await supabase
         .from('documents')
         .delete()
         .eq('id', docId)
 
       if (error) {
-        toast.error('Erreur lors de la suppression')
+        toast.error('Erreur lors de la suppression de la base de données')
       } else {
-        toast.success('Document supprimé')
+        toast.success('Document supprimé complètement')
         loadDocuments()
       }
     } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
       toast.error('Erreur lors de la suppression')
     }
   }
