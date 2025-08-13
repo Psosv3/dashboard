@@ -39,6 +39,7 @@ export default function DashboardLayout({ children, user, profile }: DashboardLa
     { name: 'Tableau de bord', href: '/dashboard', icon: '📊' },
     { name: 'Documentation', href: '/dashboard/documents', icon: '📄' },
     { name: 'Chatbot', href: '/dashboard/chat', icon: '🤖' },
+    { name: 'Statistiques', href: '/dashboard/stats', icon: '📈' },
     { name: 'Paramètres', href: '/dashboard/settings', icon: '⚙️' },
   ]
 

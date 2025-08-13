@@ -16,15 +16,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/auth/login/page": [
+    "/dashboard/stats/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/auth/login/page.js"
+      "static/chunks/app/dashboard/stats/page.js"
     ],
-    "/dashboard/documents/page": [
+    "/dashboard/chat/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/documents/page.js"
+      "static/chunks/app/dashboard/chat/page.js"
     ]
   }
 }
