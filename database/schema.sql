@@ -59,6 +59,27 @@ CREATE TABLE IF NOT EXISTS public.chat_messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table des sessions publiques (chatbot externe)
+CREATE TABLE IF NOT EXISTS public.public_chat_sessions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    session_id VARCHAR(255) UNIQUE NOT NULL,
+    company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE,
+    external_user_id VARCHAR(255),
+    title VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Table des messages des sessions publiques
+CREATE TABLE IF NOT EXISTS public.public_chat_messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    message_id VARCHAR(255) UNIQUE NOT NULL,
+    session_id VARCHAR(255) REFERENCES public.public_chat_sessions(session_id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    role VARCHAR(20) CHECK (role IN ('user', 'assistant')) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Créer les index pour optimiser les performances
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_company_id ON public.user_profiles(company_id);
@@ -67,6 +88,9 @@ CREATE INDEX IF NOT EXISTS idx_documents_uploaded_by ON public.documents(uploade
 CREATE INDEX IF NOT EXISTS idx_chat_sessions_company_id ON public.chat_sessions(company_id);
 CREATE INDEX IF NOT EXISTS idx_chat_sessions_user_id ON public.chat_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON public.chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_public_chat_sessions_company_id ON public.public_chat_sessions(company_id);
+CREATE INDEX IF NOT EXISTS idx_public_chat_sessions_external_user ON public.public_chat_sessions(external_user_id);
+CREATE INDEX IF NOT EXISTS idx_public_chat_messages_session_id ON public.public_chat_messages(session_id);
 
 -- Politiques RLS (Row Level Security)
 
