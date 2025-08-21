@@ -93,3 +93,41 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+.homepage {
+  background-image: url('/images/bg_circle.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-blend-mode: multiply;
+}
+
+.bg_primary {
+  background-color: #367DCB;
+}
+
+.color-primary {
+  color: #367DCB;
+}
+
+/* Primary color utility */
+.bg-primary {
+  background-color: #367DCB;
+}
+
+.text-primary {
+  color: #367DCB;
+}
+
+.border-primary {
+  border-color: #367DCB;
+}
+
+.ring-primary {
+  --tw-ring-color: #367DCB;
+}
+
+.hover\:bg-primary\/90:hover {
+  background-color: rgba(54, 125, 203, 0.9);
+}
