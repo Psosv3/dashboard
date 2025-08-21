@@ -46,7 +46,7 @@ export default async function DocumentationPage() {
         {/* Section principale */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-            🤖 Comment implémenter le chatbot sur votre site
+            Comment implémenter le chatbot sur votre site
           </h2>
 
           <div className="space-y-6">

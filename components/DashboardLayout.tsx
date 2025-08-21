@@ -201,18 +201,18 @@ function SidebarContent({ navigation, profile }: { navigation: any[], profile: P
       {/* Logo and company name */}
       <div className="flex items-center px-6 py-8 border-b border-white/20">
         <div className="flex items-center space-x-3">
-          <Image 
+          {/* <Image 
             src="/images/logo.webp" 
             alt="Onexus" 
             width={40} 
             height={40}
             className="rounded-lg"
-          />
+          /> */}
           <div>
             <h2 className="text-lg font-bold text-slate-900">
               {profile.companies?.name}
             </h2>
-            <p className="text-xs text-slate-500">Dashboard</p>
+            <p className="text-xs text-slate-500">Julia - Dashboard</p>
           </div>
         </div>
       </div>
