@@ -433,7 +433,13 @@ export default function StatsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="flex items-center space-x-4 text-slate-600">
+          <svg className="animate-spin h-12 w-12 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span className="text-xl font-medium">Chargement des statistiques...</span>
+        </div>
       </div>
     )
   }
@@ -446,12 +452,12 @@ export default function StatsPage() {
     <DashboardLayout user={user} profile={profile}>
       <div className="space-y-6">
         {/* En-tête */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              📈 Statistiques et Historique des Chats
+            <h1 className="text-3xl font-bold text-slate-900">
+              Statistiques et Historique des Chats
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-slate-600 mt-2 text-lg">
               Analyse des conversations internes et externes pour {profile.companies?.name}
             </p>
           </div>
@@ -468,100 +474,118 @@ export default function StatsPage() {
         </div>
 
         {/* Onglets */}
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+        <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setActiveTab('internal')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
               activeTab === 'internal'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-primary shadow-lg'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
-            🏢 Dashboard Interne
+            <span className="flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <span>Dashboard Interne</span>
+            </span>
           </button>
           <button
             onClick={() => setActiveTab('public')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
               activeTab === 'public'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-primary shadow-lg'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
-            🌐 Chatbot Externe
+            <span className="flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+              <span>Chatbot Externe</span>
+            </span>
           </button>
         </div>
 
         {/* Cartes de statistiques */}
         {statsData && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="text-2xl">💬</div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a8.841 8.841 0 01-4.255-.949L3 20l1.338-3.123C2.493 12.767 2 11.434 2 10c0-4.418 4.03-8 9-8s9 3.134 9 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Sessions {activeTab === 'internal' ? '(Internes)' : '(Externes)'}
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {statsData[activeTab].totalSessions}
-                    </dd>
-                  </dl>
+                <div className="ml-4 flex-1">
+                  <dt className="text-sm font-medium text-slate-600 truncate">
+                    Total Sessions {activeTab === 'internal' ? '(Internes)' : '(Externes)'}
+                  </dt>
+                  <dd className="text-2xl font-bold text-slate-900 mt-1">
+                    {statsData[activeTab].totalSessions}
+                  </dd>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="text-2xl">📝</div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Messages
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {statsData[activeTab].totalMessages}
-                    </dd>
-                  </dl>
+                <div className="ml-4 flex-1">
+                  <dt className="text-sm font-medium text-slate-600 truncate">
+                    Total Messages
+                  </dt>
+                  <dd className="text-2xl font-bold text-slate-900 mt-1">
+                    {statsData[activeTab].totalMessages}
+                  </dd>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="text-2xl">👥</div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Messages Utilisateurs
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {statsData[activeTab].totalUserMessages}
-                    </dd>
-                  </dl>
+                <div className="ml-4 flex-1">
+                  <dt className="text-sm font-medium text-slate-600 truncate">
+                    Messages Utilisateurs
+                  </dt>
+                  <dd className="text-2xl font-bold text-slate-900 mt-1">
+                    {statsData[activeTab].totalUserMessages}
+                  </dd>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="text-2xl">🤖</div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Réponses IA
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {statsData[activeTab].totalAssistantMessages}
-                    </dd>
-                  </dl>
+                <div className="ml-4 flex-1">
+                  <dt className="text-sm font-medium text-slate-600 truncate">
+                    Réponses IA
+                  </dt>
+                  <dd className="text-2xl font-bold text-slate-900 mt-1">
+                    {statsData[activeTab].totalAssistantMessages}
+                  </dd>
                 </div>
               </div>
             </div>
@@ -571,52 +595,73 @@ export default function StatsPage() {
         {/* Statistiques par période */}
         {statsData && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">📅 Activité par Période</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Aujourd'hui:</span>
-                  <span className="font-medium">{statsData[activeTab].sessionsToday} sessions</span>
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Cette semaine:</span>
-                  <span className="font-medium">{statsData[activeTab].sessionsThisWeek} sessions</span>
+                <h3 className="text-lg font-semibold text-slate-900">Activité par Période</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                  <span className="text-slate-600 font-medium">Aujourd'hui:</span>
+                  <span className="text-lg font-bold text-slate-900">{statsData[activeTab].sessionsToday} sessions</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Ce mois:</span>
-                  <span className="font-medium">{statsData[activeTab].sessionsThisMonth} sessions</span>
+                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                  <span className="text-slate-600 font-medium">Cette semaine:</span>
+                  <span className="text-lg font-bold text-slate-900">{statsData[activeTab].sessionsThisWeek} sessions</span>
                 </div>
-                <div className="flex justify-between border-t pt-3">
-                  <span className="text-gray-600">Moyenne messages/session:</span>
-                  <span className="font-medium">{statsData[activeTab].averageMessagesPerSession}</span>
+                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                  <span className="text-slate-600 font-medium">Ce mois:</span>
+                  <span className="text-lg font-bold text-slate-900">{statsData[activeTab].sessionsThisMonth} sessions</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-primary/10 rounded-xl border border-primary/20">
+                  <span className="text-slate-700 font-medium">Moyenne messages/session:</span>
+                  <span className="text-lg font-bold text-primary">{statsData[activeTab].averageMessagesPerSession}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow md:col-span-2">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                👥 {activeTab === 'internal' ? 'Utilisateurs' : 'Utilisateurs Externes'} les Plus Actifs
-              </h3>
-              <div className="space-y-3">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 md:col-span-2">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  {activeTab === 'internal' ? 'Utilisateurs' : 'Utilisateurs Externes'} les Plus Actifs
+                </h3>
+              </div>
+              <div className="space-y-4">
                 {(activeTab === 'internal' 
                   ? statsData.internal.mostActiveUsers 
                   : statsData.public.mostActiveExternalUsers
                 ).map((user: any, index: number) => (
-                  <div key={user.user_id || user.external_user_id} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="text-sm bg-gray-100 rounded-full px-2 py-1 mr-3">
+                  <div key={user.user_id || user.external_user_id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors duration-200">
+                    <div className="flex items-center space-x-4">
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        index === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white' :
+                        index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white' :
+                        index === 2 ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white' :
+                        'bg-slate-200 text-slate-700'
+                      }`}>
                         #{index + 1}
                       </span>
-                      <span className="text-gray-600 text-sm">
-                        {activeTab === 'internal' 
-                          ? (user.user_id ? user.user_id.substring(0, 8) + '...' : 'Inconnu')
-                          : (user.external_user_id || 'Anonyme')
-                        }
-                      </span>
+                      <div>
+                        <span className="text-slate-900 font-medium">
+                          {activeTab === 'internal' 
+                            ? (user.user_id ? user.user_id.substring(0, 8) + '...' : 'Inconnu')
+                            : (user.external_user_id || 'Anonyme')
+                          }
+                        </span>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium">{user.session_count} sessions</div>
-                      <div className="text-xs text-gray-500">{user.message_count} messages</div>
+                      <div className="text-sm font-bold text-slate-900">{user.session_count} sessions</div>
+                      <div className="text-xs text-slate-500">{user.message_count} messages</div>
                     </div>
                   </div>
                 ))}
@@ -630,42 +675,63 @@ export default function StatsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <StatsChart
               data={statsData[activeTab].dailyActivity}
-              title={`📊 Sessions quotidiennes ${activeTab === 'internal' ? '(Internes)' : '(Externes)'}`}
+              title={`Sessions quotidiennes ${activeTab === 'internal' ? '(Internes)' : '(Externes)'}`}
               type="sessions"
             />
             <StatsChart
               data={statsData[activeTab].dailyActivity}
-              title={`💬 Messages quotidiens ${activeTab === 'internal' ? '(Internes)' : '(Externes)'}`}
+              title={`Messages quotidiens ${activeTab === 'internal' ? '(Internes)' : '(Externes)'}`}
               type="messages"
             />
           </div>
         )}
 
         {/* Historique des conversations */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">
-              📋 Historique des Conversations {activeTab === 'internal' ? '(Dashboard Interne)' : '(Chatbot Externe)'}
-            </h3>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+          <div className="px-6 py-6 border-b border-slate-200/50">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-slate-500 to-slate-600 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900">
+                Historique des Conversations {activeTab === 'internal' ? '(Dashboard Interne)' : '(Chatbot Externe)'}
+              </h3>
+            </div>
             
             {/* Filtres */}
-            <div className="mt-4 flex flex-col sm:flex-row gap-4">
+            <div className="mt-6 flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder="Rechercher par titre..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Rechercher par titre..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  />
+                </div>
               </div>
               <div>
-                <input
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  />
+                </div>
               </div>
               <button
                 onClick={() => {
@@ -675,9 +741,14 @@ export default function StatsPage() {
                     fetchPublicChatSessions()
                   }
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                Filtrer
+                <span className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L6.293 13.293A1 1 0 016 12.586V6z" />
+                  </svg>
+                  <span>Filtrer</span>
+                </span>
               </button>
               <button
                 onClick={() => {
@@ -689,9 +760,14 @@ export default function StatsPage() {
                     fetchPublicChatSessions()
                   }
                 }}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="px-6 py-3 bg-slate-600 text-white font-semibold rounded-xl hover:bg-slate-700 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                Réinitialiser
+                <span className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Réinitialiser</span>
+                </span>
               </button>
             </div>
           </div>
@@ -705,8 +781,11 @@ export default function StatsPage() {
                     <h4 className="text-sm font-medium text-gray-900">{session.title}</h4>
                     <p className="text-sm text-gray-500 mt-1">
                       {formatDate(session.created_at)} • {session.chat_messages.length} messages
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        🏢 Dashboard
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        Dashboard
                       </span>
                     </p>
                   </div>
@@ -735,7 +814,21 @@ export default function StatsPage() {
                             }`}
                           >
                             <div className="text-xs opacity-75 mb-1">
-                              {message.role === 'user' ? '👤 Utilisateur' : '🤖 Assistant'} • 
+                              {message.role === 'user' ? (
+                                <span className="flex items-center space-x-1">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                  <span>Utilisateur</span>
+                                </span>
+                              ) : (
+                                <span className="flex items-center space-x-1">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                  </svg>
+                                  <span>Assistant</span>
+                                </span>
+                              )} • 
                               {formatDate(message.created_at)}
                             </div>
                             <div className="text-sm whitespace-pre-wrap">{message.content}</div>
@@ -756,8 +849,11 @@ export default function StatsPage() {
                     <h4 className="text-sm font-medium text-gray-900">{session.title}</h4>
                     <p className="text-sm text-gray-500 mt-1">
                       {formatDate(session.created_at)} • {session.public_chat_messages.length} messages
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                        🌐 Externe
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Externe
                       </span>
                       {session.external_user_id && (
                         <span className="ml-2 text-xs text-gray-400">
@@ -791,7 +887,21 @@ export default function StatsPage() {
                             }`}
                           >
                             <div className="text-xs opacity-75 mb-1">
-                              {message.role === 'user' ? '👤 Visiteur' : '🤖 Assistant'} • 
+                              {message.role === 'user' ? (
+                                <span className="flex items-center space-x-1">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                  <span>Visiteur</span>
+                                </span>
+                              ) : (
+                                <span className="flex items-center space-x-1">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                  </svg>
+                                  <span>Assistant</span>
+                                </span>
+                              )} • 
                               {formatDate(message.created_at)}
                             </div>
                             <div className="text-sm whitespace-pre-wrap">{message.content}</div>
