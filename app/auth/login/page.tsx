@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="bg-circle min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[url('/images/bg_circle.webp')] bg-cover bg-center bg-no-repeat bg-fixed opacity-10"></div>
       
@@ -58,7 +58,7 @@ export default function LoginPage() {
             Bon retour !
           </h1>
           <p className="text-slate-600">
-            Connectez-vous à votre compte Onexus
+            Connectez-vous à votre compte
           </p>
         </div>
 

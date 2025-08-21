@@ -12,7 +12,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="homepage min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="bg-circle min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header */}
       <header className="relative z-10">
         <div className="container mx-auto px-6 py-8">
