@@ -80,6 +80,18 @@ CREATE TABLE IF NOT EXISTS public.public_chat_messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table des contacts pour le support des entreprises
+CREATE TABLE IF NOT EXISTS public.contacts (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    role VARCHAR(100) NOT NULL,
+    description TEXT,
+    company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Créer les index pour optimiser les performances
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_company_id ON public.user_profiles(company_id);
@@ -91,6 +103,8 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON public.chat_messages(
 CREATE INDEX IF NOT EXISTS idx_public_chat_sessions_company_id ON public.public_chat_sessions(company_id);
 CREATE INDEX IF NOT EXISTS idx_public_chat_sessions_external_user ON public.public_chat_sessions(external_user_id);
 CREATE INDEX IF NOT EXISTS idx_public_chat_messages_session_id ON public.public_chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_contacts_company_id ON public.contacts(company_id);
+CREATE INDEX IF NOT EXISTS idx_contacts_email ON public.contacts(email);
 
 -- Politiques RLS (Row Level Security)
 
@@ -157,6 +171,23 @@ CREATE POLICY "Users can only access messages from their company sessions" ON pu
         )
     );
 
+-- Contacts: Les utilisateurs ne peuvent voir que les contacts de leur entreprise
+CREATE POLICY "Users can only access their company contacts" ON public.contacts
+    FOR ALL USING (
+        company_id IN (
+            SELECT company_id FROM public.user_profiles 
+            WHERE user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Users can insert contacts for their company" ON public.contacts
+    FOR INSERT WITH CHECK (
+        company_id IN (
+            SELECT company_id FROM public.user_profiles 
+            WHERE user_id = auth.uid()
+        )
+    );
+
 -- Fonction pour mettre à jour automatiquement updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -177,4 +208,10 @@ CREATE TRIGGER update_documents_updated_at BEFORE UPDATE ON public.documents
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_chat_sessions_updated_at BEFORE UPDATE ON public.chat_sessions
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_contacts_updated_at BEFORE UPDATE ON public.contacts
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Enable RLS pour la table contacts
+ALTER TABLE IF EXISTS public.contacts ENABLE ROW LEVEL SECURITY; 

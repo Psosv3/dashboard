@@ -142,6 +142,38 @@ export interface Database {
           created_at?: string
         }
       }
+      contacts: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          role: string
+          description: string | null
+          company_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          role: string
+          description?: string | null
+          company_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          role?: string
+          description?: string | null
+          company_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
