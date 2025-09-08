@@ -92,6 +92,21 @@ CREATE TABLE IF NOT EXISTS public.contacts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table des intégrations des entreprises
+CREATE TABLE IF NOT EXISTS public.company_integrations (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE,
+    integration_type VARCHAR(50) NOT NULL CHECK (integration_type IN ('facebook', 'whatsapp', 'instagram', 'other')),
+    app_token TEXT,
+    page_token TEXT,
+    verify_token TEXT,
+    webhook_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(company_id, integration_type)
+);
+
 -- Créer les index pour optimiser les performances
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_company_id ON public.user_profiles(company_id);
@@ -105,6 +120,8 @@ CREATE INDEX IF NOT EXISTS idx_public_chat_sessions_external_user ON public.publ
 CREATE INDEX IF NOT EXISTS idx_public_chat_messages_session_id ON public.public_chat_messages(session_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_company_id ON public.contacts(company_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON public.contacts(email);
+CREATE INDEX IF NOT EXISTS idx_company_integrations_company_id ON public.company_integrations(company_id);
+CREATE INDEX IF NOT EXISTS idx_company_integrations_type ON public.company_integrations(integration_type);
 
 -- Politiques RLS (Row Level Security)
 
@@ -188,6 +205,23 @@ CREATE POLICY "Users can insert contacts for their company" ON public.contacts
         )
     );
 
+-- Company integrations: Les utilisateurs ne peuvent voir que les intégrations de leur entreprise
+CREATE POLICY "Users can only access their company integrations" ON public.company_integrations
+    FOR ALL USING (
+        company_id IN (
+            SELECT company_id FROM public.user_profiles 
+            WHERE user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Users can insert integrations for their company" ON public.company_integrations
+    FOR INSERT WITH CHECK (
+        company_id IN (
+            SELECT company_id FROM public.user_profiles 
+            WHERE user_id = auth.uid()
+        )
+    );
+
 -- Fonction pour mettre à jour automatiquement updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -213,5 +247,9 @@ CREATE TRIGGER update_chat_sessions_updated_at BEFORE UPDATE ON public.chat_sess
 CREATE TRIGGER update_contacts_updated_at BEFORE UPDATE ON public.contacts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Enable RLS pour la table contacts
-ALTER TABLE IF EXISTS public.contacts ENABLE ROW LEVEL SECURITY; 
+CREATE TRIGGER update_company_integrations_updated_at BEFORE UPDATE ON public.company_integrations
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Enable RLS pour les tables
+ALTER TABLE IF EXISTS public.contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.company_integrations ENABLE ROW LEVEL SECURITY; 

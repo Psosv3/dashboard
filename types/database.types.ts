@@ -174,6 +174,44 @@ export interface Database {
           updated_at?: string
         }
       }
+      company_integrations: {
+        Row: {
+          id: string
+          company_id: string
+          integration_type: 'facebook' | 'whatsapp' | 'instagram' | 'other'
+          app_token: string | null
+          page_token: string | null
+          verify_token: string | null
+          webhook_url: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          integration_type: 'facebook' | 'whatsapp' | 'instagram' | 'other'
+          app_token?: string | null
+          page_token?: string | null
+          verify_token?: string | null
+          webhook_url?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          integration_type?: 'facebook' | 'whatsapp' | 'instagram' | 'other'
+          app_token?: string | null
+          page_token?: string | null
+          verify_token?: string | null
+          webhook_url?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
