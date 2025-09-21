@@ -379,7 +379,7 @@ export default function CompanyPage() {
         </div>
 
         {/* Informations de l'entreprise */}
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 ">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-slate-900">Informations de l'entreprise</h2>
             {isAdmin && (
@@ -445,7 +445,7 @@ export default function CompanyPage() {
         </div>
 
         {/* Contacts de support */}
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 z-[60] relative">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-slate-900">Contacts de support</h2>
