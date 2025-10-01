@@ -834,15 +834,6 @@ export default function StatsPage() {
           </div>
         )}
 
-        {/* Graphique de feedback */}
-        {statsData && (
-          <div className="grid grid-cols-1 gap-6">
-            <FeedbackChart
-              data={statsData[activeTab].feedback.feedbackTrend}
-              title={`Tendances de Feedback ${activeTab === 'internal' ? '(Dashboard Interne)' : '(Chatbot Externe)'}`}
-            />
-          </div>
-        )}
 
         {/* Historique des conversations */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">

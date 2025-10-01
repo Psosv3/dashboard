@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/database.types'
 import ConversationModal from './ConversationModal'
+import FeedbackChart from './FeedbackChart'
 
 type ChatMessage = Database['public']['Tables']['chat_messages']['Row'] & {
   user_feedback?: 'like' | 'dislike' | null
@@ -55,6 +56,11 @@ export default function FeedbackTab({ companyId }: FeedbackTabProps) {
     messageId: string
   } | null>(null)
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0)
+  const [feedbackTrendData, setFeedbackTrendData] = useState<Array<{
+    date: string
+    likes: number
+    dislikes: number
+  }>>([])
   const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
@@ -96,11 +102,63 @@ export default function FeedbackTab({ companyId }: FeedbackTabProps) {
       } else {
         setPublicSessions(publicData as PublicChatSession[] || [])
       }
+
+      // Calculer les tendances de feedback après le chargement
+      calculateFeedbackTrends(internalData as ChatSession[] || [], publicData as PublicChatSession[] || [])
     } catch (error) {
       console.error('Erreur lors du chargement des feedbacks:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const calculateFeedbackTrends = (internalSessions: ChatSession[], publicSessions: PublicChatSession[]) => {
+    const now = new Date()
+    const feedbackTrend: { [key: string]: { likes: number, dislikes: number } } = {}
+    
+    // Initialiser les 30 derniers jours
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+      const dateStr = date.toISOString().split('T')[0]
+      feedbackTrend[dateStr] = { likes: 0, dislikes: 0 }
+    }
+
+    // Traiter les sessions internes
+    internalSessions.forEach(session => {
+      const dateStr = session.created_at.split('T')[0]
+      if (feedbackTrend[dateStr]) {
+        session.chat_messages.forEach(msg => {
+          if ((msg as any).user_feedback === 'like') {
+            feedbackTrend[dateStr].likes++
+          } else if ((msg as any).user_feedback === 'dislike') {
+            feedbackTrend[dateStr].dislikes++
+          }
+        })
+      }
+    })
+
+    // Traiter les sessions publiques
+    publicSessions.forEach(session => {
+      const dateStr = session.created_at.split('T')[0]
+      if (feedbackTrend[dateStr]) {
+        session.public_chat_messages.forEach(msg => {
+          if ((msg as any).user_feedback === 'like') {
+            feedbackTrend[dateStr].likes++
+          } else if ((msg as any).user_feedback === 'dislike') {
+            feedbackTrend[dateStr].dislikes++
+          }
+        })
+      }
+    })
+
+    // Convertir en tableau
+    const feedbackTrendArray = Object.entries(feedbackTrend).map(([date, feedback]) => ({
+      date,
+      likes: feedback.likes,
+      dislikes: feedback.dislikes
+    }))
+
+    setFeedbackTrendData(feedbackTrendArray)
   }
 
   const formatDate = (dateString: string) => {
@@ -330,6 +388,28 @@ export default function FeedbackTab({ companyId }: FeedbackTabProps) {
         </div>
       </div>
 
+      {/* Graphique des tendances de feedback */}
+      {feedbackTrendData.length > 0 && (
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+          <div className="px-6 py-6 border-b border-slate-200/50">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900">Tendances de Feedback</h3>
+            </div>
+          </div>
+          <div className="p-6">
+            <FeedbackChart
+              data={feedbackTrendData}
+              title="Évolution des Feedbacks (Dashboard Interne + Chatbot Externe)"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Filtres */}
       <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
         <div className="flex flex-col lg:flex-row gap-4">
@@ -380,6 +460,8 @@ export default function FeedbackTab({ companyId }: FeedbackTabProps) {
           </div>
         </div>
       </div>
+
+      
 
       {/* Liste des messages avec feedback */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
