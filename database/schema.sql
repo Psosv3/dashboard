@@ -56,8 +56,17 @@ CREATE TABLE IF NOT EXISTS public.chat_messages (
     session_id UUID REFERENCES public.chat_sessions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     role VARCHAR(20) CHECK (role IN ('user', 'assistant')) NOT NULL,
+    user_feedback VARCHAR(10) CHECK (user_feedback IN ('like', 'dislike')) DEFAULT NULL,
+    feedback_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Ajouter les colonnes de feedback si elles n'existent pas
+ALTER TABLE public.chat_messages 
+ADD COLUMN IF NOT EXISTS user_feedback VARCHAR(10) CHECK (user_feedback IN ('like', 'dislike')) DEFAULT NULL;
+
+ALTER TABLE public.chat_messages 
+ADD COLUMN IF NOT EXISTS feedback_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NULL;
 
 -- Table des sessions publiques (chatbot externe)
 CREATE TABLE IF NOT EXISTS public.public_chat_sessions (
@@ -77,8 +86,17 @@ CREATE TABLE IF NOT EXISTS public.public_chat_messages (
     session_id VARCHAR(255) REFERENCES public.public_chat_sessions(session_id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     role VARCHAR(20) CHECK (role IN ('user', 'assistant')) NOT NULL,
+    user_feedback VARCHAR(10) CHECK (user_feedback IN ('like', 'dislike')) DEFAULT NULL,
+    feedback_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Ajouter les colonnes de feedback si elles n'existent pas
+ALTER TABLE public.public_chat_messages 
+ADD COLUMN IF NOT EXISTS user_feedback VARCHAR(10) CHECK (user_feedback IN ('like', 'dislike')) DEFAULT NULL;
+
+ALTER TABLE public.public_chat_messages 
+ADD COLUMN IF NOT EXISTS feedback_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NULL;
 
 -- Table des contacts pour le support des entreprises
 CREATE TABLE IF NOT EXISTS public.contacts (
