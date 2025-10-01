@@ -7,6 +7,7 @@ import { Database } from '@/types/database.types'
 import DashboardLayout from '@/components/DashboardLayout'
 import StatsChart from '@/components/StatsChart'
 import FeedbackChart from '@/components/FeedbackChart'
+import FeedbackTab from '@/components/FeedbackTab'
 import ExportButton from '@/components/ExportButton'
 import { redirect } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -125,7 +126,7 @@ export default function StatsPage() {
   const [selectedPublicSession, setSelectedPublicSession] = useState<PublicChatSession | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
-  const [activeTab, setActiveTab] = useState<'internal' | 'public'>('internal')
+  const [activeTab, setActiveTab] = useState<'internal' | 'public' | 'feedback'>('internal')
   const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
@@ -631,10 +632,30 @@ export default function StatsPage() {
               <span>Chatbot Externe</span>
             </span>
           </button>
+          <button
+            onClick={() => setActiveTab('feedback')}
+            className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              activeTab === 'feedback'
+                ? 'bg-white text-primary shadow-lg'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <span className="flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <span>Feedbacks</span>
+            </span>
+          </button>
         </div>
 
-        {/* Cartes de statistiques */}
-        {statsData && (
+        {/* Contenu conditionnel selon l'onglet actif */}
+        {activeTab === 'feedback' ? (
+          <FeedbackTab companyId={profile.company_id} />
+        ) : (
+          <>
+            {/* Cartes de statistiques */}
+            {statsData && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center">
@@ -718,90 +739,6 @@ export default function StatsPage() {
           </div>
         )}
 
-        {/* Cartes de statistiques de feedback */}
-        {statsData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-slate-600 truncate">
-                    Total Likes
-                  </dt>
-                  <dd className="text-2xl font-bold text-slate-900 mt-1">
-                    {statsData[activeTab].feedback.totalLikes}
-                  </dd>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 0110.737 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-slate-600 truncate">
-                    Total Dislikes
-                  </dt>
-                  <dd className="text-2xl font-bold text-slate-900 mt-1">
-                    {statsData[activeTab].feedback.totalDislikes}
-                  </dd>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-slate-600 truncate">
-                    Taux de Feedback
-                  </dt>
-                  <dd className="text-2xl font-bold text-slate-900 mt-1">
-                    {statsData[activeTab].feedback.feedbackRate}%
-                  </dd>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-slate-600 truncate">
-                    Taux de Satisfaction
-                  </dt>
-                  <dd className="text-2xl font-bold text-slate-900 mt-1">
-                    {statsData[activeTab].feedback.likeRate}%
-                  </dd>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Statistiques par période */}
         {statsData && (
@@ -835,36 +772,7 @@ export default function StatsPage() {
               </div>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">Statistiques de Feedback</h3>
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-xl border border-green-200">
-                  <span className="text-slate-600 font-medium">Likes:</span>
-                  <span className="text-lg font-bold text-green-600">{statsData[activeTab].feedback.totalLikes}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-red-50 rounded-xl border border-red-200">
-                  <span className="text-slate-600 font-medium">Dislikes:</span>
-                  <span className="text-lg font-bold text-red-600">{statsData[activeTab].feedback.totalDislikes}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-xl border border-blue-200">
-                  <span className="text-slate-600 font-medium">Taux de satisfaction:</span>
-                  <span className="text-lg font-bold text-blue-600">{statsData[activeTab].feedback.likeRate}%</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-amber-50 rounded-xl border border-amber-200">
-                  <span className="text-slate-600 font-medium">Taux de feedback:</span>
-                  <span className="text-lg font-bold text-amber-600">{statsData[activeTab].feedback.feedbackRate}%</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 md:col-span-2">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 md:col-span-3">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1064,22 +972,48 @@ export default function StatsPage() {
                             }`}
                           >
                             <div className="text-xs opacity-75 mb-1">
-                              {message.role === 'user' ? (
-                                <span className="flex items-center space-x-1">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                  </svg>
-                                  <span>Utilisateur</span>
-                                </span>
-                              ) : (
-                                <span className="flex items-center space-x-1">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                  </svg>
-                                  <span>Assistant</span>
-                                </span>
-                              )} • 
-                              {formatDate(message.created_at)}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-1">
+                                  {message.role === 'user' ? (
+                                    <span className="flex items-center space-x-1">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                      </svg>
+                                      <span>Utilisateur</span>
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center space-x-1">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                      </svg>
+                                      <span>Assistant</span>
+                                    </span>
+                                  )}
+                                  <span>•</span>
+                                  <span>{formatDate(message.created_at)}</span>
+                                </div>
+                                
+                                {/* Indicateur de feedback pour les messages d'assistant */}
+                                {message.role === 'assistant' && (message as any).user_feedback && (
+                                  <div className="flex items-center space-x-1">
+                                    {(message as any).user_feedback === 'like' ? (
+                                      <div className="flex items-center space-x-1 text-green-600">
+                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                        </svg>
+                                        <span className="text-xs font-medium">Liked</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center space-x-1 text-red-600">
+                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 0110.737 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                                        </svg>
+                                        <span className="text-xs font-medium">Disliked</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                             <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                           </div>
@@ -1137,22 +1071,48 @@ export default function StatsPage() {
                             }`}
                           >
                             <div className="text-xs opacity-75 mb-1">
-                              {message.role === 'user' ? (
-                                <span className="flex items-center space-x-1">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                  </svg>
-                                  <span>Visiteur</span>
-                                </span>
-                              ) : (
-                                <span className="flex items-center space-x-1">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                  </svg>
-                                  <span>Assistant</span>
-                                </span>
-                              )} • 
-                              {formatDate(message.created_at)}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-1">
+                                  {message.role === 'user' ? (
+                                    <span className="flex items-center space-x-1">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                      </svg>
+                                      <span>Visiteur</span>
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center space-x-1">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                      </svg>
+                                      <span>Assistant</span>
+                                    </span>
+                                  )}
+                                  <span>•</span>
+                                  <span>{formatDate(message.created_at)}</span>
+                                </div>
+                                
+                                {/* Indicateur de feedback pour les messages d'assistant */}
+                                {message.role === 'assistant' && (message as any).user_feedback && (
+                                  <div className="flex items-center space-x-1">
+                                    {(message as any).user_feedback === 'like' ? (
+                                      <div className="flex items-center space-x-1 text-green-600">
+                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                        </svg>
+                                        <span className="text-xs font-medium">Liked</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center space-x-1 text-red-600">
+                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 0110.737 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                                        </svg>
+                                        <span className="text-xs font-medium">Disliked</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                             <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                           </div>
@@ -1171,6 +1131,8 @@ export default function StatsPage() {
             </div>
           )}
         </div>
+          </>
+        )}
       </div>
     </DashboardLayout>
   )
