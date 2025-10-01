@@ -950,7 +950,9 @@ export default function StatsPage() {
                 {selectedSession?.id === session.id && (
                   <div className="mt-4 border-t pt-4">
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {session.chat_messages.map((message) => (
+                      {session.chat_messages
+                        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+                        .map((message) => (
                         <div
                           key={message.id}
                           className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -1049,7 +1051,9 @@ export default function StatsPage() {
                 {selectedPublicSession?.id === session.id && (
                   <div className="mt-4 border-t pt-4">
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {session.public_chat_messages.map((message: PublicChatMessage) => (
+                      {session.public_chat_messages
+                        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+                        .map((message: PublicChatMessage) => (
                         <div
                           key={message.id}
                           className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}

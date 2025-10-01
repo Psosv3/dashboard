@@ -132,9 +132,12 @@ export default function ConversationModal({
 
   const getMessages = () => {
     if (!session) return []
-    return sessionType === 'internal' 
+    const messages = sessionType === 'internal' 
       ? (session as ChatSession).chat_messages 
       : (session as PublicChatSession).public_chat_messages
+    
+    // Trier les messages par date de création (plus ancien en premier)
+    return messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
   }
 
   const handlePreviousMessage = () => {
