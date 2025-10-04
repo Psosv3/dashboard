@@ -159,6 +159,47 @@ export default function FileManager({ companyId }: FileManagerProps) {
     setProcessing(false)
   }
 
+  const downloadDocument = async (filename: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('Vous devez être connecté')
+        return
+      }
+
+      toast.loading('Téléchargement en cours...', { id: 'download' })
+
+      const response = await fetch(
+        `/api/rag/document-download?filename=${encodeURIComponent(filename)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du téléchargement')
+      }
+
+      // Créer un blob et déclencher le téléchargement
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast.success('Document téléchargé avec succès', { id: 'download' })
+    } catch (error: any) {
+      console.error('Erreur lors du téléchargement:', error)
+      toast.error('Erreur lors du téléchargement', { id: 'download' })
+    }
+  }
+
   const deleteDocument = async (docId: string, filePath: string) => {
     try {
       // D'abord, récupérer le nom du fichier depuis le chemin
@@ -452,6 +493,17 @@ export default function FileManager({ companyId }: FileManagerProps) {
                         </svg>
                       </button>
                     )}
+                    
+                    {/* Bouton Télécharger pour tous les fichiers */}
+                    <button
+                      onClick={() => downloadDocument(doc.name)}
+                      className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200"
+                      title="Télécharger le document"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </button>
                     
                     {/* Bouton Supprimer */}
                     <button
