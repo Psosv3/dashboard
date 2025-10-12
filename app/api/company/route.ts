@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { Database } from '@/types/database.types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const supabase = createRouteHandlerClient<Database>({ cookies })
