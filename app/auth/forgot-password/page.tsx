@@ -1,40 +1,115 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSupabase } from '@/lib/supabase-provider'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const { supabase } = useSupabase()
-  const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       })
 
       if (error) {
         toast.error(error.message)
       } else {
-        toast.success('Connexion réussie!')
-        router.push('/dashboard')
+        setEmailSent(true)
+        toast.success('Email de récupération envoyé!')
       }
     } catch (error) {
-      toast.error('Erreur lors de la connexion')
+      toast.error('Erreur lors de l\'envoi de l\'email')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (emailSent) {
+    return (
+      <div className="bg-circle min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[url('/images/bg_circle.webp')] bg-cover bg-center bg-no-repeat bg-fixed opacity-10"></div>
+        
+        <div className="relative z-10 w-full max-w-md">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <Image 
+                src="/images/logo.webp" 
+                alt="Onexus" 
+                width={80} 
+                height={80}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Email envoyé !
+            </h1>
+            <p className="text-slate-600">
+              Vérifiez votre boîte mail pour réinitialiser votre mot de passe
+            </p>
+          </div>
+
+          {/* Success Message */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+            <div className="text-center space-y-4">
+              <p className="text-slate-700">
+                Nous avons envoyé un lien de récupération à :
+              </p>
+              <p className="font-semibold text-slate-900 bg-slate-100 rounded-lg px-4 py-2">
+                {email}
+              </p>
+              <p className="text-sm text-slate-600">
+                Cliquez sur le lien dans l'email pour réinitialiser votre mot de passe. 
+                Le lien expirera dans 1 heure.
+              </p>
+              
+              <div className="pt-4">
+                <button
+                  onClick={() => {
+                    setEmailSent(false)
+                    setEmail('')
+                  }}
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  Renvoyer l'email
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Back to Login */}
+          <div className="text-center mt-6">
+            <Link 
+              href="/auth/login" 
+              className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Retour à la connexion
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -55,16 +130,16 @@ export default function LoginPage() {
             />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Bon retour !
+            Mot de passe oublié ?
           </h1>
           <p className="text-slate-600">
-            Connectez-vous à votre compte
+            Entrez votre email pour recevoir un lien de récupération
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Forgot Password Form */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleForgotPassword} className="space-y-6">
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
@@ -88,41 +163,9 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
-                Mot de passe
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="Votre mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Forgot Password Link */}
-            <div className="text-right mb-4">
-              <Link 
-                href="/auth/forgot-password"
-                className="text-sm text-primary hover:text-primary/80 transition-colors"
-              >
-                Mot de passe oublié ?
-              </Link>
+              <p className="mt-2 text-sm text-slate-600">
+                Nous vous enverrons un lien pour réinitialiser votre mot de passe
+              </p>
             </div>
 
             {/* Submit Button */}
@@ -137,10 +180,10 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Connexion en cours...
+                  Envoi en cours...
                 </div>
               ) : (
-                'Se connecter'
+                'Envoyer le lien de récupération'
               )}
             </button>
           </form>
@@ -155,16 +198,16 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Register Link */}
+          {/* Back to Login */}
           <div className="text-center">
             <p className="text-slate-600 mb-4">
-              Vous n'avez pas encore de compte ?
+              Vous vous souvenez de votre mot de passe ?
             </p>
             <Link 
-              href="/auth/register"
+              href="/auth/login"
               className="inline-flex items-center justify-center w-full py-3 px-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-xl hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
             >
-              Créer un compte
+              Retour à la connexion
             </Link>
           </div>
         </div>
@@ -184,4 +227,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-} 
+}
