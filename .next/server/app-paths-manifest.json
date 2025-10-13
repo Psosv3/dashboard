@@ -1,25 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/rag/ask/route": "app/api/rag/ask/route.js",
-  "/api/rag/build_index/route": "app/api/rag/build_index/route.js",
-  "/api/rag/upload/route": "app/api/rag/upload/route.js",
-  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
   "/auth/login/page": "app/auth/login/page.js",
-  "/auth/register/page": "app/auth/register/page.js",
-  "/auth/reset-password/page": "app/auth/reset-password/page.js",
-  "/dashboard/chat/page": "app/dashboard/chat/page.js",
-  "/dashboard/company/page": "app/dashboard/company/page.js",
-  "/dashboard/documents/page": "app/dashboard/documents/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/page": "app/page.js",
-  "/dashboard/stats/page": "app/dashboard/stats/page.js",
-  "/api/contacts/[id]/route": "app/api/contacts/[id]/route.js",
-  "/api/integrations/[id]/route": "app/api/integrations/[id]/route.js",
-  "/api/company/route": "app/api/company/route.js",
-  "/api/contacts/route": "app/api/contacts/route.js",
-  "/api/integrations/route": "app/api/integrations/route.js",
-  "/api/rag/delete/route": "app/api/rag/delete/route.js",
-  "/api/rag/document-download/route": "app/api/rag/document-download/route.js",
-  "/api/rag/document-view/route": "app/api/rag/document-view/route.js",
-  "/api/rag/document-content/route": "app/api/rag/document-content/route.js"
+  "/dashboard/chat/page": "app/dashboard/chat/page.js",
+  "/dashboard/documents/page": "app/dashboard/documents/page.js",
+  "/api/rag/ask/route": "app/api/rag/ask/route.js"
 }
