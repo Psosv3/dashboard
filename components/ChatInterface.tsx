@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSupabase } from '@/lib/supabase-provider'
 import toast from 'react-hot-toast'
-import axios from 'axios'
+// axios n'est plus utilisé, on passe en fetch + SSE
 
 interface Message {
   id: string
@@ -138,52 +138,102 @@ export default function ChatInterface({ companyId }: ChatInterfaceProps) {
     setMessages(prev => [...prev, newUserMessage])
 
     try {
-      // Récupérer le token JWT Supabase
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
-        toast.error('Vous devez être connecté pour utiliser le chatbot')
-        setLoading(false)
-        return
-      }
-
-      // Envoyer la question au backend RAG avec authentification
-      const response = await axios.post(
-        '/api/rag/ask',
-        {
-          question: userMessage
-          // Le backend récupère automatiquement le company_id depuis le token JWT
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-
-      const assistantResponse = response.data.answer || 'Désolé, je n\'ai pas pu traiter votre demande.'
-
-      // Sauvegarder la réponse de l'assistant
-      const { error: assistantError } = await supabase
-        .from('chat_messages')
-        .insert({
-          session_id: currentSession,
-          content: assistantResponse,
-          role: 'assistant'
-        })
-
-      if (assistantError) {
-        toast.error('Erreur lors de la sauvegarde de la réponse')
-      }
-
-      // Mettre à jour l'interface
-      const newAssistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: assistantResponse,
+      // Ajouter un message assistant temporaire pour le streaming
+      const assistantTempId = `assistant-${Date.now().toString()}`
+      const tempAssistant: Message = {
+        id: assistantTempId,
+        content: '',
         role: 'assistant',
         created_at: new Date().toISOString()
       }
-      setMessages(prev => [...prev, newAssistantMessage])
+      setMessages(prev => [...prev, tempAssistant])
+
+      // Appel SSE vers notre proxy ask_public, en envoyant company_id
+      const response = await fetch('/api/rag/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question: userMessage,
+          company_id: companyId
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type') || ''
+      let assistantText = ''
+
+      if (contentType.includes('text/event-stream') && response.body) {
+        // Parsing SSE
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buffer += decoder.decode(value, { stream: true })
+
+          // Découper par évènements SSE (séparés par \n\n)
+          const events = buffer.split('\n\n')
+          buffer = events.pop() || ''
+
+          for (const evt of events) {
+            const lines = evt.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data:')) {
+                const raw = line.slice(5).trim()
+                if (raw === '[DONE]') {
+                  continue
+                }
+                let parsedAnswer: string | null = null
+                try {
+                  const payload = JSON.parse(raw)
+                  if (payload && typeof payload === 'object' && typeof payload.answer === 'string') {
+                    parsedAnswer = payload.answer
+                  }
+                } catch {
+                  // non-JSON chunk, fallback to raw append
+                }
+                if (parsedAnswer !== null) {
+                  assistantText = parsedAnswer
+                } else {
+                  assistantText += raw
+                }
+                // Mise à jour incrémentale du message assistant
+                setMessages(prev => prev.map(m => m.id === assistantTempId ? { ...m, content: assistantText } : m))
+              }
+            }
+          }
+        }
+      } else {
+        // Réponse JSON classique
+        const json = await response.json().catch(() => null)
+        const text = json && typeof json.answer === 'string' ? json.answer : ''
+        assistantText = text
+        setMessages(prev => prev.map(m => m.id === assistantTempId ? { ...m, content: assistantText || 'Désolé, je n\'ai pas pu traiter votre demande.' } : m))
+      }
+
+      // Sauvegarder la réponse finale dans Supabase
+      if (assistantText.trim().length > 0) {
+        const { error: assistantError } = await supabase
+          .from('chat_messages')
+          .insert({
+            session_id: currentSession,
+            content: assistantText,
+            role: 'assistant'
+          })
+        if (assistantError) {
+          toast.error('Erreur lors de la sauvegarde de la réponse')
+        }
+      } else {
+        // Si pas de texte reçu, indiquer une erreur à l'utilisateur
+        setMessages(prev => prev.map(m => m.id === assistantTempId ? { ...m, content: 'Désolé, je n\'ai pas pu traiter votre demande.' } : m))
+      }
 
     } catch (error: any) {
       console.error('Chat error:', error)
@@ -202,7 +252,7 @@ export default function ChatInterface({ companyId }: ChatInterfaceProps) {
       
       toast.error(errorMessage)
       
-      // Message d'erreur pour l'utilisateur
+      // Ajouter un message d'erreur pour l'utilisateur
       const errorMessageObj: Message = {
         id: (Date.now() + 1).toString(),
         content: errorMessage,

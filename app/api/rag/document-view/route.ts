@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
+export const dynamic = 'force-dynamic'
+
 const RAG_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export async function GET(request: NextRequest) {
