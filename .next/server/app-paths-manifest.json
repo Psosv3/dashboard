@@ -1,6 +1,11 @@
 {
-  "/page": "app/page.js",
+  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/auth/login/page": "app/auth/login/page.js",
-  "/auth/register/page": "app/auth/register/page.js",
-  "/auth/forgot-password/page": "app/auth/forgot-password/page.js"
+  "/dashboard/documents/page": "app/dashboard/documents/page.js",
+  "/dashboard/company/page": "app/dashboard/company/page.js",
+  "/api/company/route": "app/api/company/route.js",
+  "/api/contacts/route": "app/api/contacts/route.js",
+  "/api/contacts/[id]/route": "app/api/contacts/[id]/route.js",
+  "/api/integrations/route": "app/api/integrations/route.js"
 }
