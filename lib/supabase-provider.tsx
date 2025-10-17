@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { SupabaseClient, User } from '@supabase/auth-helpers-nextjs'
 
@@ -19,9 +19,26 @@ export default function SupabaseProvider({
 }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClientComponentClient()
+  // Utiliser useMemo pour ne créer le client qu'une seule fois
+  const supabase = useMemo(() => createClientComponentClient(), [])
+  const initialized = useRef(false)
 
   useEffect(() => {
+    // Éviter les double-calls en mode développement (React Strict Mode)
+    if (initialized.current) return
+
+    initialized.current = true
+
+    // Récupérer l'utilisateur actuel au chargement initial
+    const initializeAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+
+    initializeAuth()
+
+    // Écouter les changements d'authentification
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -29,16 +46,11 @@ export default function SupabaseProvider({
       setLoading(false)
     })
 
-    // Récupérer l'utilisateur actuel
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setLoading(false)
-    })
-
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Context.Provider value={{ supabase, user, loading }}>

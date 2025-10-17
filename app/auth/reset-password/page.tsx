@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSupabase } from '@/lib/supabase-provider'
@@ -15,6 +15,7 @@ function ResetPasswordForm() {
   const { supabase } = useSupabase()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const lastAttemptTime = useRef<number>(0)
 
   useEffect(() => {
     // Vérifier si nous avons les paramètres nécessaires pour la réinitialisation
@@ -43,6 +44,18 @@ function ResetPasswordForm() {
       return
     }
 
+    // Éviter les doubles soumissions
+    if (loading) return
+    
+    // Cooldown de 2 secondes entre les tentatives
+    const now = Date.now()
+    const timeSinceLastAttempt = now - lastAttemptTime.current
+    if (timeSinceLastAttempt < 2000) {
+      toast.error('Veuillez attendre quelques secondes entre chaque tentative')
+      return
+    }
+    
+    lastAttemptTime.current = now
     setLoading(true)
 
     try {
@@ -51,7 +64,13 @@ function ResetPasswordForm() {
       })
 
       if (error) {
-        toast.error(error.message)
+        // Gestion spécifique de l'erreur 429 (rate limit)
+        if (error.message.includes('rate_limit') || error.message.includes('429')) {
+          toast.error('Trop de tentatives. Veuillez attendre 30 secondes avant de réessayer.')
+        } else {
+          toast.error(error.message)
+        }
+        setLoading(false)
       } else {
         setPasswordReset(true)
         toast.success('Mot de passe réinitialisé avec succès!')
@@ -61,9 +80,13 @@ function ResetPasswordForm() {
           router.push('/auth/login')
         }, 3000)
       }
-    } catch (error) {
-      toast.error('Erreur lors de la réinitialisation du mot de passe')
-    } finally {
+    } catch (error: any) {
+      // Gestion spécifique de l'erreur 429
+      if (error?.status === 429 || error?.message?.includes('429')) {
+        toast.error('Trop de tentatives. Veuillez attendre 30 secondes avant de réessayer.')
+      } else {
+        toast.error('Erreur lors de la réinitialisation du mot de passe')
+      }
       setLoading(false)
     }
   }
