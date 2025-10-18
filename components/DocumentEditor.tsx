@@ -56,6 +56,7 @@ export default function DocumentEditor({ filename, onClose, onSave }: DocumentEd
         return
       }
 
+      // 1. Sauvegarder le fichier via l'API RAG
       await axios.put(
         `/api/rag/document-content?filename=${encodeURIComponent(filename)}`,
         { content },
@@ -66,6 +67,17 @@ export default function DocumentEditor({ filename, onClose, onSave }: DocumentEd
           }
         }
       )
+
+      // 2. Mettre à jour le updated_at dans Supabase
+      const { error: updateError } = await supabase
+        .from('documents')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('name', filename)
+
+      if (updateError) {
+        console.error('Erreur lors de la mise à jour du timestamp:', updateError)
+        // On ne bloque pas, c'est un warning mineur
+      }
 
       toast.success('Document mis à jour avec succès! L\'index sera reconstruit automatiquement.')
       onSave()
