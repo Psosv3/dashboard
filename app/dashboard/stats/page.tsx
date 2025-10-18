@@ -531,7 +531,7 @@ export default function StatsPage() {
       }
 
       if (searchTerm) {
-        query = query.ilike('title', `%${searchTerm}%`)
+        query = query.or(`title.ilike.%${searchTerm}%,session_id.ilike.%${searchTerm}%`)
       }
 
       const { data, error } = await query.order('created_at', { ascending: false })
@@ -860,7 +860,7 @@ export default function StatsPage() {
                   </div>
                   <input
                     type="text"
-                    placeholder="Rechercher par titre..."
+                    placeholder="Rechercher par titre ou session_id..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
@@ -1031,6 +1031,9 @@ export default function StatsPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                         </svg>
                         Externe
+                      </span>
+                      <span className="ml-2 text-xs text-gray-400">
+                        ID: {session.session_id}
                       </span>
                       {session.external_user_id && (
                         <span className="ml-2 text-xs text-gray-400">

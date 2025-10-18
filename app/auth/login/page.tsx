@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSupabase } from '@/lib/supabase-provider'
@@ -13,9 +13,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const { supabase } = useSupabase()
   const router = useRouter()
+  const lastAttemptTime = useRef<number>(0)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Éviter les doubles soumissions
+    if (loading) return
+    
+    // Cooldown de 2 secondes entre les tentatives
+    const now = Date.now()
+    const timeSinceLastAttempt = now - lastAttemptTime.current
+    if (timeSinceLastAttempt < 2000) {
+      toast.error('Veuillez attendre quelques secondes entre chaque tentative')
+      return
+    }
+    
+    lastAttemptTime.current = now
     setLoading(true)
 
     try {
@@ -25,14 +39,25 @@ export default function LoginPage() {
       })
 
       if (error) {
-        toast.error(error.message)
+        // Gestion spécifique de l'erreur 429 (rate limit)
+        if (error.message.includes('rate_limit') || error.message.includes('429')) {
+          toast.error('Trop de tentatives. Veuillez attendre 30 secondes avant de réessayer.')
+        } else {
+          toast.error(error.message)
+        }
+        setLoading(false)
       } else {
         toast.success('Connexion réussie!')
+        // Ne pas remettre loading à false pour éviter un nouveau click
         router.push('/dashboard')
       }
-    } catch (error) {
-      toast.error('Erreur lors de la connexion')
-    } finally {
+    } catch (error: any) {
+      // Gestion spécifique de l'erreur 429
+      if (error?.status === 429 || error?.message?.includes('429')) {
+        toast.error('Trop de tentatives. Veuillez attendre 30 secondes avant de réessayer.')
+      } else {
+        toast.error('Erreur lors de la connexion')
+      }
       setLoading(false)
     }
   }
