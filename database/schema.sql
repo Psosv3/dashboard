@@ -75,6 +75,8 @@ CREATE TABLE IF NOT EXISTS public.public_chat_sessions (
     company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE,
     external_user_id VARCHAR(255),
     title VARCHAR(255) NOT NULL,
+    manual_response BOOLEAN DEFAULT TRUE,
+    messenger BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -97,6 +99,13 @@ ADD COLUMN IF NOT EXISTS user_feedback VARCHAR(10) CHECK (user_feedback IN ('lik
 
 ALTER TABLE public.public_chat_messages 
 ADD COLUMN IF NOT EXISTS feedback_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NULL;
+
+-- Ajouter les colonnes manual_response et messenger si elles n'existent pas
+ALTER TABLE public.public_chat_sessions 
+ADD COLUMN IF NOT EXISTS manual_response BOOLEAN DEFAULT TRUE;
+
+ALTER TABLE public.public_chat_sessions 
+ADD COLUMN IF NOT EXISTS messenger BOOLEAN DEFAULT FALSE;
 
 -- Table des contacts pour le support des entreprises
 CREATE TABLE IF NOT EXISTS public.contacts (
