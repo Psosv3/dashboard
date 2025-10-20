@@ -22,6 +22,8 @@ type PublicChatSession = {
   company_id: string
   external_user_id: string | null
   title: string
+  manual_response: boolean
+  messenger: boolean
   created_at: string
   updated_at: string
   public_chat_messages: PublicChatMessage[]
@@ -557,6 +559,35 @@ export default function StatsPage() {
     })
   }
 
+  const toggleManualResponse = async (sessionId: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('public_chat_sessions')
+        .update({ manual_response: !currentValue })
+        .eq('id', sessionId)
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour:', error)
+        toast.error('Erreur lors de la mise à jour du statut')
+        return
+      }
+
+      // Mettre à jour l'état local
+      setPublicChatSessions(prev => 
+        prev.map(session => 
+          session.id === sessionId 
+            ? { ...session, manual_response: !currentValue }
+            : session
+        )
+      )
+
+      toast.success(`Réponse automatique ${!currentValue ? 'activée' : 'désactivée'}`)
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error)
+      toast.error('Erreur lors de la mise à jour du statut')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -1023,7 +1054,18 @@ export default function StatsPage() {
               <div key={session.id} className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h4 className="text-sm font-medium text-gray-900">{session.title}</h4>
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h4 className="text-sm font-medium text-gray-900">{session.title}</h4>
+                      {/* Indicateur Messenger */}
+                      {session.messenger && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97C9.02 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V9h2v4zm4 4h-2v-2h2v2zm0-4h-2V9h2v4z"/>
+                          </svg>
+                          Messenger
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500 mt-1">
                       {formatDate(session.created_at)} • {session.public_chat_messages.length} messages
                       <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -1042,12 +1084,37 @@ export default function StatsPage() {
                       )}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setSelectedPublicSession(selectedPublicSession?.id === session.id ? null : session)}
-                    className="ml-4 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200"
-                  >
-                    {selectedPublicSession?.id === session.id ? 'Masquer' : 'Voir détails'}
-                  </button>
+                  <div className="flex items-center space-x-3">
+                    {/* Toggle On/Off pour manual_response */}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-500 font-medium">Auto IA:</span>
+                      <button
+                        onClick={() => toggleManualResponse(session.id, session.manual_response)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                          session.manual_response 
+                            ? 'bg-primary' 
+                            : 'bg-gray-200'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            session.manual_response ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                      <span className={`text-xs font-medium ${
+                        session.manual_response ? 'text-primary' : 'text-gray-500'
+                      }`}>
+                        {session.manual_response ? 'ON' : 'OFF'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedPublicSession(selectedPublicSession?.id === session.id ? null : session)}
+                      className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200"
+                    >
+                      {selectedPublicSession?.id === session.id ? 'Masquer' : 'Voir détails'}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Détails de la conversation publique */}
