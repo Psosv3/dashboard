@@ -22,7 +22,7 @@ type PublicChatSession = {
   company_id: string
   external_user_id: string | null
   title: string
-  manual_response: boolean
+  manual_response: boolean | null
   messenger: boolean
   created_at: string
   updated_at: string
@@ -559,11 +559,15 @@ export default function StatsPage() {
     })
   }
 
-  const toggleManualResponse = async (sessionId: string, currentValue: boolean) => {
+  const toggleManualResponse = async (sessionId: string, currentValue: boolean | null) => {
     try {
+      // Si manual_response est null ou false, on passe à true (désactiver l'auto IA)
+      // Si manual_response est true, on passe à false (activer l'auto IA)
+      const newValue = currentValue === true ? false : true
+
       const { error } = await supabase
         .from('public_chat_sessions')
-        .update({ manual_response: !currentValue })
+        .update({ manual_response: newValue })
         .eq('id', sessionId)
 
       if (error) {
@@ -576,12 +580,12 @@ export default function StatsPage() {
       setPublicChatSessions(prev => 
         prev.map(session => 
           session.id === sessionId 
-            ? { ...session, manual_response: !currentValue }
+            ? { ...session, manual_response: newValue }
             : session
         )
       )
 
-      toast.success(`Réponse automatique ${!currentValue ? 'activée' : 'désactivée'}`)
+      toast.success(`Réponse automatique ${newValue === false ? 'activée' : 'désactivée'}`)
     } catch (error) {
       console.error('Erreur lors de la mise à jour:', error)
       toast.error('Erreur lors de la mise à jour du statut')
@@ -1091,21 +1095,21 @@ export default function StatsPage() {
                       <button
                         onClick={() => toggleManualResponse(session.id, session.manual_response)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                          session.manual_response 
-                            ? 'bg-primary' 
-                            : 'bg-gray-200'
+                          session.manual_response === true 
+                            ? 'bg-gray-200' 
+                            : 'bg-primary'
                         }`}
                       >
                         <span
                           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            session.manual_response ? 'translate-x-6' : 'translate-x-1'
+                            session.manual_response === true ? 'translate-x-1' : 'translate-x-6'
                           }`}
                         />
                       </button>
                       <span className={`text-xs font-medium ${
-                        session.manual_response ? 'text-primary' : 'text-gray-500'
+                        session.manual_response === true ? 'text-gray-500' : 'text-primary'
                       }`}>
-                        {session.manual_response ? 'ON' : 'OFF'}
+                        {session.manual_response === true ? 'OFF' : 'ON'}
                       </span>
                     </div>
                     <button
