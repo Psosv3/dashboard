@@ -1,7 +1,7 @@
 {
-  "/dashboard/settings/page": "app/dashboard/settings/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/api/settings/route": "app/api/settings/route.js",
-  "/page": "app/page.js",
-  "/auth/login/page": "app/auth/login/page.js"
+  "/dashboard/company/page": "app/dashboard/company/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/company/route": "app/api/company/route.js",
+  "/api/contacts/route": "app/api/contacts/route.js",
+  "/api/integrations/route": "app/api/integrations/route.js"
 }

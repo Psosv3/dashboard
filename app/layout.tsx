@@ -7,7 +7,7 @@ import { SupabaseProvider } from '@/lib/supabase-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Dashboard Chatbot RAG',
+  title: 'Dashboard Onexus',
   description: 'Gestionnaire de chatbot IA avec RAG multi-tenant',
 }
 
