@@ -184,6 +184,7 @@ export interface Database {
           verify_token: string | null
           webhook_url: string | null
           is_active: boolean
+          background_color: string | null
           created_at: string
           updated_at: string
         }
@@ -196,6 +197,7 @@ export interface Database {
           verify_token?: string | null
           webhook_url?: string | null
           is_active?: boolean
+          background_color?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -208,6 +210,7 @@ export interface Database {
           verify_token?: string | null
           webhook_url?: string | null
           is_active?: boolean
+          background_color?: string | null
           created_at?: string
           updated_at?: string
         }

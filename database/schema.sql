@@ -129,10 +129,15 @@ CREATE TABLE IF NOT EXISTS public.company_integrations (
     verify_token TEXT,
     webhook_url TEXT,
     is_active BOOLEAN DEFAULT TRUE,
+    background_color VARCHAR(20) DEFAULT '#4F46E5',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(company_id, integration_type)
 );
+
+-- Ajouter la colonne background_color si elle n'existe pas
+ALTER TABLE public.company_integrations 
+ADD COLUMN IF NOT EXISTS background_color VARCHAR(20) DEFAULT '#4F46E5';
 
 -- Créer les index pour optimiser les performances
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);

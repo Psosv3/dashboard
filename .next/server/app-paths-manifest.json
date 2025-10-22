@@ -1,4 +1,12 @@
 {
+<<<<<<< HEAD
   "/dashboard/page": "app/dashboard/page.js",
   "/api/rag/build_index/route": "app/api/rag/build_index/route.js"
+=======
+  "/dashboard/company/page": "app/dashboard/company/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/company/route": "app/api/company/route.js",
+  "/api/contacts/route": "app/api/contacts/route.js",
+  "/api/integrations/route": "app/api/integrations/route.js"
+>>>>>>> 61f2037afb0323458c49cdbbeec63cf3a1ac9777
 }
