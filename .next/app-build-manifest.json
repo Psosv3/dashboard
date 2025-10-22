@@ -15,19 +15,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
-<<<<<<< HEAD
-=======
-    ],
-    "/dashboard/documents/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/documents/page.js"
-    ],
-    "/dashboard/stats/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/stats/page.js"
->>>>>>> c3945af6840d5bc0abc253aefecc5bf5e2634627
     ]
   }
 }

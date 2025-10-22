@@ -1,12 +1,4 @@
 {
   "/dashboard/page": "app/dashboard/page.js",
-<<<<<<< HEAD
-  "/page": "app/page.js",
-  "/api/rag/build_index/route": "app/api/rag/build_index/route.js",
-  "/api/rag/upload/route": "app/api/rag/upload/route.js",
-  "/api/rag/delete/route": "app/api/rag/delete/route.js"
-=======
-  "/dashboard/documents/page": "app/dashboard/documents/page.js",
-  "/dashboard/stats/page": "app/dashboard/stats/page.js"
->>>>>>> c3945af6840d5bc0abc253aefecc5bf5e2634627
+  "/api/rag/build_index/route": "app/api/rag/build_index/route.js"
 }
