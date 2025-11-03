@@ -8,6 +8,7 @@ interface Settings {
   company: {
     id: string;
     name: string;
+    chatbot_signature?: string;
   };
 }
 
@@ -18,6 +19,7 @@ interface SettingsFormProps {
 export default function SettingsForm({ companyName }: SettingsFormProps) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [backgroundColor, setBackgroundColor] = useState('#4F46E5');
+  const [chatbotSignature, setChatbotSignature] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -38,6 +40,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
       const data = await response.json();
       setSettings(data);
       setBackgroundColor(data.background_color || '#4F46E5');
+      setChatbotSignature(data.company?.chatbot_signature || '');
     } catch (error) {
       console.error('Erreur:', error);
       setMessage({ type: 'error', text: 'Impossible de charger les paramètres' });
@@ -58,6 +61,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
         },
         body: JSON.stringify({
           background_color: backgroundColor,
+          chatbot_signature: chatbotSignature,
         }),
       });
 
@@ -83,6 +87,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
   const handleReset = () => {
     if (settings) {
       setBackgroundColor(settings.background_color);
+      setChatbotSignature(settings.company?.chatbot_signature || '');
       setMessage(null);
     }
   };
@@ -147,13 +152,33 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Informations de l'entreprise
         </h2>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Nom de l'entreprise
             </label>
             <p className="mt-1 text-lg text-gray-900">
               {companyName || 'Non défini'}
+            </p>
+          </div>
+          <div>
+            <label htmlFor="chatbot_signature" className="block text-sm font-medium text-gray-700">
+              Signature du chatbot
+            </label>
+            <p className="mt-1 text-xs text-gray-500 mb-2">
+              Ce texte s'affichera sous chaque réponse du chatbot (ex: "Ouvert 24h/24, 7j/7")
+            </p>
+            <input
+              type="text"
+              id="chatbot_signature"
+              value={chatbotSignature}
+              onChange={(e) => setChatbotSignature(e.target.value)}
+              placeholder="Ouvert 24h/24, 7j/7"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              maxLength={100}
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              {chatbotSignature.length}/100 caractères
             </p>
           </div>
         </div>
@@ -174,14 +199,14 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
           <button
             onClick={handleReset}
             className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={saving || backgroundColor === settings?.background_color}
+            disabled={saving || (backgroundColor === settings?.background_color && chatbotSignature === (settings?.company?.chatbot_signature || ''))}
           >
             Réinitialiser
           </button>
           
           <button
             onClick={handleSave}
-            disabled={saving || backgroundColor === settings?.background_color}
+            disabled={saving || (backgroundColor === settings?.background_color && chatbotSignature === (settings?.company?.chatbot_signature || ''))}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {saving ? (

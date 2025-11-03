@@ -83,10 +83,23 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { background_color } = body;
+    const { background_color, chatbot_signature } = body;
 
     if (!background_color) {
       return NextResponse.json({ error: 'Couleur manquante' }, { status: 400 });
+    }
+
+    // Mettre à jour la signature du chatbot dans la table companies
+    if (chatbot_signature !== undefined) {
+      const { error: companyUpdateError } = await supabase
+        .from('companies')
+        .update({ chatbot_signature })
+        .eq('id', profile.company_id);
+
+      if (companyUpdateError) {
+        console.error('Erreur lors de la mise à jour de la signature:', companyUpdateError);
+        return NextResponse.json({ error: 'Erreur lors de la mise à jour de la signature' }, { status: 500 });
+      }
     }
 
     // Vérifier si une intégration existe déjà
@@ -130,9 +143,20 @@ export async function PUT(request: Request) {
       result = data;
     }
 
+    // Rafraîchir le cache du backend Python
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/refresh_companies/`, {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.log('Impossible de rafraîchir le cache du backend:', error);
+      // Ne pas bloquer la réponse si le rafraîchissement échoue
+    }
+
     return NextResponse.json({
       success: true,
       background_color,
+      chatbot_signature,
       integrations: result
     });
 
