@@ -51,7 +51,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       company,
       integrations: integrations || [],
-      background_color: integrations && integrations.length > 0 ? integrations[0].background_color : '#4F46E5'
+      background_color: integrations && integrations.length > 0 ? integrations[0].background_color : '#4F46E5',
+      general_manual_response: integrations && integrations.length > 0 ? integrations[0].general_manual_response : false
     });
 
   } catch (error) {
@@ -83,7 +84,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { background_color, chatbot_signature } = body;
+    const { background_color, chatbot_signature, general_manual_response } = body;
 
     if (!background_color) {
       return NextResponse.json({ error: 'Couleur manquante' }, { status: 400 });
@@ -113,9 +114,14 @@ export async function PUT(request: Request) {
 
     if (existingIntegrations && existingIntegrations.length > 0) {
       // Mettre à jour toutes les intégrations existantes
+      const updateData: any = { background_color };
+      if (general_manual_response !== undefined) {
+        updateData.general_manual_response = general_manual_response;
+      }
+
       const { data, error } = await supabase
         .from('company_integrations')
-        .update({ background_color })
+        .update(updateData)
         .eq('company_id', profile.company_id)
         .select();
 
@@ -132,6 +138,7 @@ export async function PUT(request: Request) {
           company_id: profile.company_id,
           integration_type: 'other',
           background_color,
+          general_manual_response: general_manual_response !== undefined ? general_manual_response : false,
           is_active: true
         })
         .select();
@@ -157,6 +164,7 @@ export async function PUT(request: Request) {
       success: true,
       background_color,
       chatbot_signature,
+      general_manual_response: general_manual_response !== undefined ? general_manual_response : false,
       integrations: result
     });
 

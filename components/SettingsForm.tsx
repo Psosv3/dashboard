@@ -5,6 +5,7 @@ import ColorPicker from '@/components/ColorPicker';
 
 interface Settings {
   background_color: string;
+  general_manual_response: boolean;
   company: {
     id: string;
     name: string;
@@ -20,6 +21,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [backgroundColor, setBackgroundColor] = useState('#4F46E5');
   const [chatbotSignature, setChatbotSignature] = useState('');
+  const [generalManualResponse, setGeneralManualResponse] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -41,6 +43,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
       setSettings(data);
       setBackgroundColor(data.background_color || '#4F46E5');
       setChatbotSignature(data.company?.chatbot_signature || '');
+      setGeneralManualResponse(data.general_manual_response || false);
     } catch (error) {
       console.error('Erreur:', error);
       setMessage({ type: 'error', text: 'Impossible de charger les paramètres' });
@@ -62,6 +65,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
         body: JSON.stringify({
           background_color: backgroundColor,
           chatbot_signature: chatbotSignature,
+          general_manual_response: generalManualResponse,
         }),
       });
 
@@ -88,6 +92,7 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
     if (settings) {
       setBackgroundColor(settings.background_color);
       setChatbotSignature(settings.company?.chatbot_signature || '');
+      setGeneralManualResponse(settings.general_manual_response || false);
       setMessage(null);
     }
   };
@@ -186,6 +191,43 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          Comportement du chatbot
+        </h2>
+        
+        <div className="space-y-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <label htmlFor="general_manual_response" className="block text-sm font-medium text-gray-700">
+                Mode de réponse automatique de l'IA
+              </label>
+              <p className="mt-1 text-sm text-gray-500">
+                {generalManualResponse 
+                  ? "Les réponses automatiques de l'IA sont désactivées. Le chatbot ne répondra pas automatiquement aux messages." 
+                  : "Les réponses automatiques de l'IA sont activées. Le chatbot répondra automatiquement aux messages."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setGeneralManualResponse(!generalManualResponse)}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 ${
+                generalManualResponse ? 'bg-gray-400' : 'bg-indigo-600'
+              }`}
+              role="switch"
+              aria-checked={!generalManualResponse}
+            >
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  generalManualResponse ? 'translate-x-0' : 'translate-x-5'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
           Apparence du chatbot
         </h2>
         
@@ -199,14 +241,14 @@ export default function SettingsForm({ companyName }: SettingsFormProps) {
           <button
             onClick={handleReset}
             className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={saving || (backgroundColor === settings?.background_color && chatbotSignature === (settings?.company?.chatbot_signature || ''))}
+            disabled={saving || (backgroundColor === settings?.background_color && chatbotSignature === (settings?.company?.chatbot_signature || '') && generalManualResponse === (settings?.general_manual_response || false))}
           >
             Réinitialiser
           </button>
           
           <button
             onClick={handleSave}
-            disabled={saving || (backgroundColor === settings?.background_color && chatbotSignature === (settings?.company?.chatbot_signature || ''))}
+            disabled={saving || (backgroundColor === settings?.background_color && chatbotSignature === (settings?.company?.chatbot_signature || '') && generalManualResponse === (settings?.general_manual_response || false))}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {saving ? (
