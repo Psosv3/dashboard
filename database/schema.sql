@@ -144,6 +144,10 @@ ADD COLUMN IF NOT EXISTS background_color VARCHAR(20) DEFAULT '#4F46E5';
 ALTER TABLE public.company_integrations 
 ADD COLUMN IF NOT EXISTS general_manual_response BOOLEAN DEFAULT FALSE;
 
+-- Ajouter la colonne extra_prompt si elle n'existe pas
+ALTER TABLE public.company_integrations 
+ADD COLUMN IF NOT EXISTS extra_prompt TEXT;
+
 -- Ajouter la colonne chatbot_signature si elle n'existe pas
 ALTER TABLE public.companies 
 ADD COLUMN IF NOT EXISTS chatbot_signature TEXT;
