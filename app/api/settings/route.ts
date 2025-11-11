@@ -51,7 +51,9 @@ export async function GET(request: Request) {
     return NextResponse.json({
       company,
       integrations: integrations || [],
-      background_color: integrations && integrations.length > 0 ? integrations[0].background_color : '#4F46E5'
+      background_color: integrations && integrations.length > 0 ? integrations[0].background_color : '#4F46E5',
+      general_manual_response: integrations && integrations.length > 0 ? integrations[0].general_manual_response : false,
+      extra_prompt: integrations && integrations.length > 0 ? integrations[0].extra_prompt : ''
     });
 
   } catch (error) {
@@ -83,10 +85,23 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { background_color } = body;
+    const { background_color, chatbot_signature, general_manual_response, extra_prompt } = body;
 
     if (!background_color) {
       return NextResponse.json({ error: 'Couleur manquante' }, { status: 400 });
+    }
+
+    // Mettre à jour la signature du chatbot dans la table companies
+    if (chatbot_signature !== undefined) {
+      const { error: companyUpdateError } = await supabase
+        .from('companies')
+        .update({ chatbot_signature })
+        .eq('id', profile.company_id);
+
+      if (companyUpdateError) {
+        console.error('Erreur lors de la mise à jour de la signature:', companyUpdateError);
+        return NextResponse.json({ error: 'Erreur lors de la mise à jour de la signature' }, { status: 500 });
+      }
     }
 
     // Vérifier si une intégration existe déjà
@@ -100,9 +115,17 @@ export async function PUT(request: Request) {
 
     if (existingIntegrations && existingIntegrations.length > 0) {
       // Mettre à jour toutes les intégrations existantes
+      const updateData: any = { background_color };
+      if (general_manual_response !== undefined) {
+        updateData.general_manual_response = general_manual_response;
+      }
+      if (extra_prompt !== undefined) {
+        updateData.extra_prompt = extra_prompt;
+      }
+
       const { data, error } = await supabase
         .from('company_integrations')
-        .update({ background_color })
+        .update(updateData)
         .eq('company_id', profile.company_id)
         .select();
 
@@ -119,6 +142,8 @@ export async function PUT(request: Request) {
           company_id: profile.company_id,
           integration_type: 'other',
           background_color,
+          general_manual_response: general_manual_response !== undefined ? general_manual_response : false,
+          extra_prompt: extra_prompt || '',
           is_active: true
         })
         .select();
@@ -130,9 +155,22 @@ export async function PUT(request: Request) {
       result = data;
     }
 
+    // Rafraîchir le cache du backend Python
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/refresh_companies/`, {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.log('Impossible de rafraîchir le cache du backend:', error);
+      // Ne pas bloquer la réponse si le rafraîchissement échoue
+    }
+
     return NextResponse.json({
       success: true,
       background_color,
+      chatbot_signature,
+      general_manual_response: general_manual_response !== undefined ? general_manual_response : false,
+      extra_prompt: extra_prompt || '',
       integrations: result
     });
 

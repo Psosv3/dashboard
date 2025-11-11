@@ -1,1 +1,8 @@
+<<<<<<< HEAD
 {}
+=======
+{
+  "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/api/settings/route": "app/api/settings/route.js"
+}
+>>>>>>> d4f444f00d8b4dae8f99c4e274555b2c950b627e
