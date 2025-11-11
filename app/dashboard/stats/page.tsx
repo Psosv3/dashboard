@@ -1127,7 +1127,7 @@ export default function StatsPage() {
                     <div className="space-y-4 max-h-96 overflow-y-auto">
                       {session.public_chat_messages
                         .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-                        .map((message: PublicChatMessage) => (
+                        .map((message: PublicChatMessage) =>  (
                         <div
                           key={message.id}
                           className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
