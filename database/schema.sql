@@ -297,4 +297,62 @@ CREATE TRIGGER update_company_integrations_updated_at BEFORE UPDATE ON public.co
 
 -- Enable RLS pour les tables
 ALTER TABLE IF EXISTS public.contacts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.company_integrations ENABLE ROW LEVEL SECURITY; 
+ALTER TABLE IF EXISTS public.company_integrations ENABLE ROW LEVEL SECURITY;
+
+-- Table des notifications
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE NOT NULL,
+    
+    -- Liens optionnels vers session/message
+    session_id VARCHAR(255) REFERENCES public.public_chat_sessions(session_id) ON DELETE CASCADE,
+    message_id VARCHAR(255) REFERENCES public.public_chat_messages(message_id) ON DELETE CASCADE,
+    
+    -- Type de notification (extensible)
+    type VARCHAR(50) NOT NULL,
+    
+    -- Titre court de la notification
+    title VARCHAR(255) NOT NULL,
+    
+    -- Description détaillée
+    content TEXT NOT NULL,
+    
+    -- Métadonnées JSON flexibles
+    metadata JSONB DEFAULT '{}'::jsonb,
+    
+    -- Gestion de l'état
+    read BOOLEAN DEFAULT FALSE,
+    priority VARCHAR(20) DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
+    
+    -- Action suggérée (optionnel)
+    action_url TEXT,
+    action_label VARCHAR(100),
+    
+    -- Horodatage
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index pour notifications
+CREATE INDEX IF NOT EXISTS idx_notifications_company_id ON public.notifications(company_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_read ON public.notifications(read);
+CREATE INDEX IF NOT EXISTS idx_notifications_type ON public.notifications(type);
+CREATE INDEX IF NOT EXISTS idx_notifications_priority ON public.notifications(priority);
+CREATE INDEX IF NOT EXISTS idx_notifications_session_id ON public.notifications(session_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
+
+-- Notifications: Les utilisateurs ne peuvent voir que les notifications de leur entreprise
+CREATE POLICY "Users can only access their company notifications" ON public.notifications
+    FOR ALL USING (
+        company_id IN (
+            SELECT company_id FROM public.user_profiles 
+            WHERE user_id = auth.uid()
+        )
+    );
+
+-- Trigger pour mettre à jour updated_at sur notifications
+CREATE TRIGGER update_notifications_updated_at BEFORE UPDATE ON public.notifications
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Enable RLS pour notifications
+ALTER TABLE IF EXISTS public.notifications ENABLE ROW LEVEL SECURITY; 

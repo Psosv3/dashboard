@@ -180,6 +180,29 @@ export default function StatsPage() {
     }
   }
 
+  const decryptMessages = async (messages: any[]): Promise<any[]> => {
+    try {
+      const response = await fetch('/api/decrypt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages }),
+      })
+
+      if (!response.ok) {
+        console.error('Erreur lors du décryptage:', response.statusText)
+        return messages // Retourner les messages originaux en cas d'erreur
+      }
+
+      const data = await response.json()
+      return data.messages || messages
+    } catch (error) {
+      console.error('Erreur lors du décryptage des messages:', error)
+      return messages // Retourner les messages originaux en cas d'erreur
+    }
+  }
+
   const fetchStatsData = async () => {
     try {
       if (!profile?.company_id) return
@@ -506,7 +529,24 @@ export default function StatsPage() {
         return
       }
 
-      setChatSessions(data as ChatSession[] || [])
+      // Décrypter les messages
+      if (data && data.length > 0) {
+        const sessionsWithDecryptedMessages = await Promise.all(
+          data.map(async (session: any) => {
+            if (session.chat_messages && session.chat_messages.length > 0) {
+              const decryptedMessages = await decryptMessages(session.chat_messages)
+              return {
+                ...session,
+                chat_messages: decryptedMessages
+              }
+            }
+            return session
+          })
+        )
+        setChatSessions(sessionsWithDecryptedMessages as ChatSession[])
+      } else {
+        setChatSessions(data as ChatSession[] || [])
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des sessions internes:', error)
     }
@@ -543,7 +583,24 @@ export default function StatsPage() {
         return
       }
 
-      setPublicChatSessions(data as PublicChatSession[] || [])
+      // Décrypter les messages
+      if (data && data.length > 0) {
+        const sessionsWithDecryptedMessages = await Promise.all(
+          data.map(async (session: any) => {
+            if (session.public_chat_messages && session.public_chat_messages.length > 0) {
+              const decryptedMessages = await decryptMessages(session.public_chat_messages)
+              return {
+                ...session,
+                public_chat_messages: decryptedMessages
+              }
+            }
+            return session
+          })
+        )
+        setPublicChatSessions(sessionsWithDecryptedMessages as PublicChatSession[])
+      } else {
+        setPublicChatSessions(data as PublicChatSession[] || [])
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des sessions publiques:', error)
     }

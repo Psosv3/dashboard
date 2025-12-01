@@ -47,6 +47,8 @@ export default async function DashboardPage() {
     storageUsed: documents?.reduce((total, doc) => total + doc.file_size, 0) || 0
   }
 
+  console.log('NEXT_PUBLIC_API_URL', process.env.NEXT_PUBLIC_API_URL)
+
   return (
     <DashboardLayout user={user} profile={profile}>
       <div className="space-y-6">

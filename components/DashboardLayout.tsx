@@ -7,6 +7,7 @@ import { useSupabase } from '@/lib/supabase-provider'
 import { User } from '@supabase/auth-helpers-nextjs'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
+import NotificationBell from './NotificationBell'
 
 interface Profile {
   id: string
@@ -141,6 +142,9 @@ export default function DashboardLayout({ children, user, profile }: DashboardLa
               </svg>
             </button>
             <div className="flex items-center space-x-3">
+              {/* Notification Bell Mobile */}
+              <NotificationBell companyId={profile.company_id} />
+              
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-semibold">
@@ -169,6 +173,9 @@ export default function DashboardLayout({ children, user, profile }: DashboardLa
             <div className="flex justify-between items-center">
               <div></div>
               <div className="flex items-center space-x-4">
+                {/* Notification Bell */}
+                <NotificationBell companyId={profile.company_id} />
+                
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                     <span className="text-white text-sm font-semibold">
